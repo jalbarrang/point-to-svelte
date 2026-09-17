@@ -1,159 +1,138 @@
-# <img src="https://github.com/aidenybai/react-grab/blob/main/.github/public/logo.png?raw=true" width="60" align="center" /> React Grab
+# point-to-svelte
 
-[![version](https://img.shields.io/npm/v/react-grab?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/react-grab)
-[![downloads](https://img.shields.io/npm/dt/react-grab.svg?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/react-grab)
+Point your coding agent at the actual source behind any Svelte component.
 
-Copy any UI element for your agent.
-
-React Grab points agents to the actual source behind each selection. Agents are [**2× faster**](https://react-grab.com/benchmarks) and more accurate when using React Grab.
-
-[**Website →**](https://react-grab.com)
-
-## Quick Start
-
-Run this at your project root:
-
-```bash
-npx grab@latest init
-```
-
-## How It Works
-
-React Grab turns a browser selection into source context your agent can use:
-
-1. Hover any UI element in your app.
-2. Press **⌘C** or **Ctrl+C**.
-3. Paste the copied context into your agent.
-
-The copied context includes the selected element and its component stack with source locations:
+point-to-svelte is a fork of [React Grab](https://github.com/aidenybai/react-grab) that swaps
+React's fiber walking for Svelte's dev-mode `__svelte_meta`. Hover any element in a running dev
+server, grab it, and paste the result into your agent:
 
 ```txt
-[<a class="ml-auto inline-block text-sm" href="#">Forgot your password?</a> in LoginForm (at components/login-form.tsx:46:19)]
+[<span class="todo-text">Buy oat milk</span> in TodoItem (at src/lib/components/todo-item.svelte:15:5)
+ in TodoItem (at src/lib/components/todo-list.svelte:39:7)
+ in TodoList (at src/routes/+page.svelte:58:3)]
 ```
 
-## Manual Installation
+Because Svelte records the exact position of every element it compiles, the file, line **and
+column** are precise — no source maps, no bundle fetches, no network round trip.
 
-If you cannot use the CLI, install React Grab manually for your framework:
+## Why the fork exists
 
-#### Next.js (App router)
+React Grab's selection engine, overlay, toolbar, menus, hit testing, drag selection and clipboard
+payload are framework-agnostic, so they are reused almost verbatim (the overlay UI is SolidJS and is
+bundled). Only the "which component owns this element" layer differs:
 
-Add this inside your `app/layout.tsx`:
+| React Grab | point-to-svelte |
+| --- | --- |
+| `bippy` fiber walk (`getFiberFromHostInstance`, `getOwnerStack`) | `__svelte_meta.loc` + the `parent` dev-stack chain |
+| `_debugSource` (dev only, Vite line numbers unreliable) | `loc.file` / `loc.line` / `loc.column`, exact |
+| Patches React's dispatcher to pause re-renders | No-op: Svelte 5 has no public render pause |
+| Next.js server frame symbolication | Not needed — locations are already source locations |
+| react-three-fiber selection | Detached; the element-adapter seam is kept for WebGL renderers |
 
-```jsx
-import Script from "next/script";
-
-export default function RootLayout({ children }) {
-  return (
-    <html>
-      <head>
-        {process.env.NODE_ENV === "development" && (
-          <Script
-            src="//unpkg.com/react-grab/dist/index.global.js"
-            crossOrigin="anonymous"
-            strategy="beforeInteractive"
-          />
-        )}
-      </head>
-      <body>{children}</body>
-    </html>
-  );
-}
-```
-
-#### Next.js (Pages router)
-
-Add this into your `pages/_document.tsx`:
-
-```jsx
-import { Html, Head, Main, NextScript } from "next/document";
-
-export default function Document() {
-  return (
-    <Html lang="en">
-      <Head>
-        {process.env.NODE_ENV === "development" && (
-          <Script
-            src="//unpkg.com/react-grab/dist/index.global.js"
-            crossOrigin="anonymous"
-            strategy="beforeInteractive"
-          />
-        )}
-      </Head>
-      <body>
-        <Main />
-        <NextScript />
-      </body>
-    </Html>
-  );
-}
-```
-
-#### Vite
-
-Add this at the top of your main entry file (e.g., `src/main.tsx`):
-
-```tsx
-if (import.meta.env.DEV) {
-  import("react-grab");
-}
-```
-
-#### Webpack
-
-First, install React Grab:
+## Install
 
 ```bash
-npm install react-grab
+pnpm add -D point-to-svelte
 ```
 
-Then add this at the top of your main entry file (e.g., `src/index.tsx` or `src/main.tsx`):
+Then load the client in development. The recommended place in SvelteKit is `src/hooks.client.ts`,
+which is client-only and therefore never touches the SSR bundle:
 
-```tsx
-if (process.env.NODE_ENV === "development") {
-  import("react-grab");
+```ts
+// src/hooks.client.ts
+import { dev } from "$app/environment";
+
+if (dev) {
+  await import("point-to-svelte");
 }
 ```
 
-## Build your own React Grab
+For plain Vite + Svelte, either import it at the top of `src/main.ts` behind `import.meta.env.DEV`,
+or add the Vite plugin and let it inject the client:
 
-Build a custom interface with the selection engine from `react-grab/primitives`. Use its APIs for hit testing, source context, page freezing, clipboard access, and editor navigation.
+```ts
+// vite.config.ts
+import { svelteGrab } from "point-to-svelte/vite";
 
-### Customize hit testing
-
-Scope hit testing to a container or replace the default element filter with your own rules.
-
-```typescript
-import { getElementAtPoint, isElementGrabbable } from "react-grab/primitives";
-
-export const getPickerTarget = (
-  event: PointerEvent,
-  appElement: Element,
-  toolbarElement: Element,
-): Element | null =>
-  getElementAtPoint(event.clientX, event.clientY, {
-    container: appElement,
-    filter: (candidate) => isElementGrabbable(candidate) && !toolbarElement.contains(candidate),
-  });
+export default defineConfig({
+  plugins: [svelte(), svelteGrab()],
+});
 ```
 
-Add `data-react-grab-ignore` to your picker interface so hit testing skips its subtree.
+You can also drop in the prebuilt global bundle without a bundler:
 
-## Resources & Contributing Back
+```html
+<script src="//unpkg.com/point-to-svelte/dist/index.global.js"></script>
+```
 
-Want to try it out? Check out [our demo](https://react-grab.com).
+## Use it
 
-Looking to contribute back? Check out the [Contributing Guide](https://github.com/aidenybai/react-grab/blob/main/CONTRIBUTING.md).
+- Hover any element and press **⌘C** / **Ctrl+C**, or
+- click the toolbar toggle, hover, and click the element.
+- Grabbed boxes flash on every element you copy; **Escape** deactivates.
 
-Want to talk to the community? Hop in our [Discord](https://discord.com/invite/G7zxfUzkm7) and share your ideas and what you've built with React Grab.
+The copied context contains the element's HTML preview, its own `.svelte` file with `:line:column`,
+and the component stack that renders it.
 
-Find a bug? Head over to our [issue tracker](https://github.com/aidenybai/react-grab/issues) and we'll do our best to help. We love pull requests, too!
+Add `data-point-to-svelte-ignore` to any subtree that should never be grabbable (map canvases,
+third-party widgets, your own dev chrome).
 
-We expect all contributors to abide by the terms of our [Code of Conduct](https://github.com/aidenybai/react-grab/blob/main/.github/CODE_OF_CONDUCT.md).
+## Requirements
 
-[**Start contributing on GitHub**](https://github.com/aidenybai/react-grab/blob/main/CONTRIBUTING.md)
+- Svelte **5.35+** for the `parent` chain inside `__svelte_meta` (earlier 5.x gives you the element's
+  own location and a name from the file, but not the ancestor stack).
+- Development mode (`dev: true`, which `vite dev` enables for you). In production builds Svelte
+  strips the metadata, so grabbing falls back to the selector and HTML preview.
+- TypeScript/`vitePreprocess` is fine; line numbers come from the preprocessed source.
 
-### License
+## Caveats
 
-React Grab is MIT-licensed open-source software.
+- **App state is not frozen.** React Grab pauses React's renderer while picking; Svelte 5 exposes no
+  equivalent, so timers, sockets and animations that change state keep running. Pointer events,
+  CSS/JS animations, animation-frame loops and pseudo-states *are* still frozen. Apps that need more
+  can pause their own stores in the `onActivate` plugin hook.
+- **Don't statically import it from a component.** The client mounts an overlay into `<body>` and
+  reads the DOM; importing it from `hooks.client.ts` (or another client-only module) keeps it out of
+  SSR, where only the guarded no-op entry should run.
+- **Early DOM work in a SvelteKit component can trip hydration.** Writing to the app's DOM (or
+  updating state) while SvelteKit is still hydrating nested route nodes is reported as
+  `hydration_mismatch`. That is a SvelteKit behaviour, not a point-to-svelte one, but it is worth
+  knowing while building dev tooling.
 
-_Thank you to [Andrew Luetgers](https://github.com/andrewluetgers) for donating the `grab` npm package name._
+## Build your own
+
+The selection engine is available without the overlay:
+
+```ts
+import { getElementContext, getElementAtPoint, freeze, openFile } from "point-to-svelte/primitives";
+
+const context = await getElementContext(document.querySelector(".card")!);
+context.snippet;       // text identical to what a grab copies
+context.componentName; // "TodoItem"
+context.filePath;      // "/abs/src/lib/components/todo-item.svelte"
+context.lineNumber;    // 15
+```
+
+## Repository layout
+
+```
+packages/point-to-svelte/        the library (source, build, Vite plugin)
+apps/playground-sveltekit/       SvelteKit playground with a live diagnostics panel
+```
+
+## Development
+
+```bash
+pnpm install
+pnpm build          # builds packages/point-to-svelte (esm + iife + types + css)
+pnpm playground     # builds the library, then runs the playground on :5199
+```
+
+The playground's diagnostics panel at the bottom of the page resolves live DOM nodes with
+`getElementContext()`, drives an activation + copy through synthetic pointer events, and shows the
+payload captured by the `onCopySuccess` plugin hook.
+
+## License
+
+MIT. Based on [React Grab](https://github.com/aidenybai/react-grab), copyright Aiden Bai. See
+`LICENSE`.

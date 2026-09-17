@@ -1,1 +1,0 @@
-export const SUSPENSE_REVEAL_DELAY_MS = 350;

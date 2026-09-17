@@ -1,2 +1,0 @@
-export const DETAIL_LOADER_DELAY_MS = 150;
-export const SUSPENSE_REVEAL_DELAY_MS = 200;

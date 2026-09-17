@@ -1,0 +1,169 @@
+:root {
+  --ink: #0f172a;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --surface: #ffffff;
+  --accent: #4f46e5;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: #f8fafc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 40px 24px 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-title {
+  font-size: 30px;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.page-subtitle {
+  color: var(--muted);
+  margin: 0;
+  max-width: 62ch;
+  line-height: 1.55;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.75;
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(24px);
+  }
+}
+
+.animated-pill {
+  animation: drift 1.6s ease-in-out infinite alternate;
+}
+
+/* Source resolution report: built imperatively by source-inspector.svelte and
+   attached to <body>, so these styles are global. */
+.sg-report {
+  max-width: 880px;
+  margin: 0 auto 48px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 13px;
+  overflow-x: auto;
+}
+
+.sg-report-heading {
+  margin: 14px 0 6px;
+  font-size: 15px;
+}
+
+.sg-report-heading:first-child {
+  margin-top: 0;
+}
+
+.sg-report-note {
+  margin: 0 0 12px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.sg-report-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sg-report-target {
+  font-weight: 600;
+  color: #a5b4fc;
+}
+
+.sg-report-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #cbd5f5;
+  margin: 4px 0 6px;
+}
+
+.sg-report-pre {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: #1e293b;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+
+.sg-report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
+.sg-report-button {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  cursor: pointer;
+}
+
+.sg-report-button:hover {
+  background: #334155;
+}
+
+.sg-report-mono {
+  font-family: ui-monospace, monospace;
+  color: #94a3b8;
+  margin: 0 0 6px;
+}
+
+.sg-report-copied-label {
+  color: #86efac;
+  font-weight: 600;
+  margin-bottom: 4px;
+}

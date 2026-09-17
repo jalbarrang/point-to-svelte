@@ -1,0 +1,84 @@
+{
+  "name": "point-to-svelte",
+  "version": "0.1.0",
+  "description": "Select any Svelte component in the browser and copy its source context for coding agents",
+  "keywords": [
+    "agent",
+    "context",
+    "devtools",
+    "grab",
+    "svelte",
+    "point-to-svelte",
+    "sveltekit"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "browser": "dist/index.global.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "default": "./dist/core/index.js"
+    },
+    "./primitives": {
+      "types": "./dist/primitives.d.ts",
+      "default": "./dist/primitives.js"
+    },
+    "./vite": {
+      "types": "./dist/vite.d.ts",
+      "default": "./dist/vite.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./dist/*": "./dist/*"
+  },
+  "scripts": {
+    "prebuild": "rimraf dist && tailwindcss -i ./src/styles.css -o ./dist/styles.css -m && tsx scripts/css-rem-to-px.ts",
+    "build": "pnpm run prebuild && vite build && vite build --mode global && vite build --mode node && tsc -p tsconfig.build.json",
+    "build:module": "vite build",
+    "build:global": "vite build --mode global",
+    "build:node": "vite build --mode node",
+    "build:types": "tsc -p tsconfig.build.json",
+    "css:watch": "tailwindcss -i ./src/styles.css -o ./dist/styles.css -w",
+    "dev": "concurrently \"pnpm:css:watch\" \"vite build --watch\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "launch-editor": "^2.14.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.7",
+    "@babel/preset-typescript": "^7.29.7",
+    "@tailwindcss/cli": "^4.3.3",
+    "@types/babel__core": "^7.20.5",
+    "@types/node": "^24.10.1",
+    "babel-preset-solid": "^1.9.15",
+    "concurrently": "^10.0.5",
+    "rimraf": "^6.1.3",
+    "solid-js": "^1.9.15",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "vite": "^7.3.6"
+  },
+  "peerDependencies": {
+    "svelte": ">=5.35.0"
+  },
+  "peerDependenciesMeta": {
+    "svelte": {
+      "optional": true
+    }
+  }
+}
