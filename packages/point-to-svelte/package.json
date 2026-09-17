@@ -1,6 +1,6 @@
 {
   "name": "point-to-svelte",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Select any Svelte component in the browser and copy its source context for coding agents",
   "keywords": [
     "agent",
@@ -11,6 +11,14 @@
     "point-to-svelte",
     "sveltekit"
   ],
+  "homepage": "https://github.com/jalbarrang/point-to-svelte#readme",
+  "bugs": {
+    "url": "https://github.com/jalbarrang/point-to-svelte/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jalbarrang/point-to-svelte.git"
+  },
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
