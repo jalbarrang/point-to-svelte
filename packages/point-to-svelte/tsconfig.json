@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
-    "jsx": "preserve",
-    "jsxImportSource": "solid-js",
-    "module": "NodeNext",
-    "moduleResolution": "nodenext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "target": "esnext",
     "esModuleInterop": true,
     "strictNullChecks": true,
@@ -13,8 +11,8 @@
     "noUnusedParameters": true,
     "lib": ["esnext", "dom", "dom.iterable"],
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node", "svelte"]
   },
-  "include": ["src", "vite.config.ts", "solid-babel-plugin.ts", "scripts"],
+  "include": ["src", "vite.config.ts", "svelte.config.js", "scripts"],
   "exclude": ["**/node_modules/**", "dist"]
 }

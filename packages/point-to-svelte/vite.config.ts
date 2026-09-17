@@ -1,6 +1,8 @@
 import fs from "node:fs";
-import { defineConfig, type UserConfig } from "vite";
-import { solidBabelPlugin, solidWebBrowserPlugin } from "./solid-babel-plugin.js";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { defineConfig, type Plugin, type UserConfig } from "vite";
 
 const packageJson = JSON.parse(fs.readFileSync(new URL("./package.json", import.meta.url), "utf8")) as {
   version: string;
@@ -20,12 +22,37 @@ const define = {
   "process.env.VERSION": JSON.stringify(packageJson.version),
 };
 
-// Solid is an implementation detail of the overlay: it is always bundled so
-// consumers never need it installed, and so only one copy of the runtime is
-// ever evaluated inside the overlay's shadow root.
-const browserPlugins = () => [solidWebBrowserPlugin(), solidBabelPlugin()];
+// The overlay UI is compiled from .svelte components and .svelte.ts rune
+// modules. In the module build the host app's own Svelte runtime is reused so a
+// second copy is never evaluated inside the shadow root; the global build
+// bundles the runtime because it is a standalone <script> drop-in.
+const svelteExternal = ["svelte", /^svelte\//];
 
-// Module build: the importable library (index, core, primitives).
+const packageRoot = fileURLToPath(new URL(".", import.meta.url));
+
+// The rune module is imported without an extension so TypeScript can resolve it
+// under bundler resolution. Vite's own resolver does not map `.svelte` to
+// `.svelte.ts`, and the Svelte plugin claims any specifier ending in `.svelte`
+// as a component, so the alias is resolved here first. Vite also only maps a
+// relative `.js` specifier to its `.ts` source when the importer is itself a
+// TypeScript file, which excludes compiled `.svelte` modules; the same plugin
+// restores that mapping for them.
+const resolveReactivityModule = (): Plugin => ({
+  name: "point-to-svelte-resolve-reactivity",
+  enforce: "pre",
+  resolveId(source, importer) {
+    if (source.endsWith("/reactivity.svelte")) {
+      return path.resolve(packageRoot, "src/reactivity.svelte.ts");
+    }
+    const importerPath = importer?.split("?")[0];
+    if (importerPath && source.startsWith(".") && source.endsWith(".js")) {
+      const candidate = path.resolve(path.dirname(importerPath), source.replace(/\.js$/, ".ts"));
+      if (fs.existsSync(candidate)) return candidate;
+    }
+    return undefined;
+  },
+});
+
 const createBrowserModuleConfig = (): UserConfig => ({
   build: {
     emptyOutDir: false,
@@ -34,18 +61,19 @@ const createBrowserModuleConfig = (): UserConfig => ({
     lib: {
       entry: {
         index: "src/index.ts",
-        "core/index": "src/core/index.tsx",
+        "core/index": "src/core/index.ts",
         primitives: "src/primitives.ts",
       },
       formats: ["es"],
       fileName: (_format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
+      external: svelteExternal,
       output: { banner: licenseBanner },
     },
   },
   define,
-  plugins: browserPlugins(),
+  plugins: [resolveReactivityModule(), svelte()],
 });
 
 // Global build: the <script src=".../index.global.js"> drop-in for apps that
@@ -66,7 +94,7 @@ const createBrowserGlobalConfig = (): UserConfig => ({
     },
   },
   define,
-  plugins: browserPlugins(),
+  plugins: [resolveReactivityModule(), svelte()],
 });
 
 // Node build: the Vite plugin. Node dependencies stay external so the plugin

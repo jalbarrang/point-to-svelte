@@ -18,8 +18,9 @@ column** are precise — no source maps, no bundle fetches, no network round tri
 ## Why the fork exists
 
 React Grab's selection engine, overlay, toolbar, menus, hit testing, drag selection and clipboard
-payload are framework-agnostic, so they are reused almost verbatim (the overlay UI is SolidJS and is
-bundled). Only the "which component owns this element" layer differs:
+payload are framework-agnostic, so they are reused almost verbatim. The overlay UI itself is
+written in native Svelte (runes + `.svelte` components) and shares the host app's runtime. Only the
+"which component owns this element" layer differs:
 
 | React Grab | point-to-svelte |
 | --- | --- |

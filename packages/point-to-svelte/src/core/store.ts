@@ -1,5 +1,4 @@
-import { createStore, produce } from "solid-js/store";
-import { batch, createSignal } from "solid-js";
+import { batch, createSignal, createStore, produce } from "../reactivity.svelte";
 import type { Position, GrabbedBox, SelectionLabelInstance } from "../types.js";
 import { OFFSCREEN_POSITION } from "../constants.js";
 import { createElementBounds } from "../utils/create-element-bounds.js";
@@ -80,7 +79,7 @@ const relinkElement = (element: Element): Element => {
 // Re-resolves every element the overlay anchors to — the selection, the hover
 // target, the context-menu target, and the post-copy "Copied" labels and
 // grabbed-box flashes — so they all follow the same DOM swaps. Run on the
-// recalc interval; assigning the same reference back is a no-op for solid, so
+// recalc interval; assigning the same reference back is a no-op for the store, so
 // connected elements produce no store notifications. Each slot is relinked in
 // place: frozenElement is NOT re-derived from frozenElements[0] here, because
 // enterPromptMode sets it standalone (prompt on a non-first multi-selected
@@ -353,7 +352,7 @@ const createGrabStore = (input: GrabStoreInput) => {
     shiftDragStart: (delta: Position) => {
       const currentState = current();
       if (currentState.state === "active" && currentState.phase === "dragging-reposition") {
-        setStore("dragStart", (dragStart) => ({
+        setStore("dragStart", (dragStart: Position) => ({
           x: dragStart.x + delta.x,
           y: dragStart.y + delta.y,
         }));
@@ -557,11 +556,11 @@ const createGrabStore = (input: GrabStoreInput) => {
     },
 
     incrementSelectionInteractionLockDepth: () => {
-      setStore("selectionInteractionLockDepth", (currentLockDepth) => currentLockDepth + 1);
+      setStore("selectionInteractionLockDepth", (currentLockDepth: number) => currentLockDepth + 1);
     },
 
     decrementSelectionInteractionLockDepth: () => {
-      setStore("selectionInteractionLockDepth", (currentLockDepth) =>
+      setStore("selectionInteractionLockDepth", (currentLockDepth: number) =>
         Math.max(0, currentLockDepth - 1),
       );
     },
@@ -579,11 +578,13 @@ const createGrabStore = (input: GrabStoreInput) => {
 
     addGrabbedBox: (box: GrabbedBox) => {
       if (box.element) trackElementAnchor(box.element);
-      setStore("grabbedBoxes", (boxes) => [...boxes, box]);
+      setStore("grabbedBoxes", (boxes: GrabbedBox[]) => [...boxes, box]);
     },
 
     removeGrabbedBox: (boxId: string) => {
-      setStore("grabbedBoxes", (boxes) => boxes.filter((box) => box.id !== boxId));
+      setStore("grabbedBoxes", (boxes: GrabbedBox[]) =>
+        boxes.filter((box: GrabbedBox) => box.id !== boxId),
+      );
     },
 
     clearGrabbedBoxes: () => {
@@ -595,7 +596,7 @@ const createGrabStore = (input: GrabStoreInput) => {
       for (const instanceElement of instance.elements ?? []) {
         trackElementAnchor(instanceElement);
       }
-      setStore("labelInstances", (instances) => [...instances, instance]);
+      setStore("labelInstances", (instances: SelectionLabelInstance[]) => [...instances, instance]);
     },
 
     updateLabelInstance: (
@@ -620,8 +621,8 @@ const createGrabStore = (input: GrabStoreInput) => {
     },
 
     removeLabelInstance: (instanceId: string) => {
-      setStore("labelInstances", (instances) =>
-        instances.filter((instance) => instance.id !== instanceId),
+      setStore("labelInstances", (instances: SelectionLabelInstance[]) =>
+        instances.filter((instance: SelectionLabelInstance) => instance.id !== instanceId),
       );
     },
 

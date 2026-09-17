@@ -1,4 +1,4 @@
-import { onCleanup, onMount } from "solid-js";
+import { onCleanup, onMount } from "../reactivity.svelte";
 import { confirmationFocusManager } from "./confirmation-focus-manager.js";
 import { isKeyboardEventTriggeredByInput } from "./is-keyboard-event-triggered-by-input.js";
 import { ignoreRealInput } from "./runtime-mode.js";

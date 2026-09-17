@@ -1,4 +1,4 @@
-import { onCleanup } from "solid-js";
+import { onCleanup } from "../reactivity.svelte";
 
 interface AnimatedBoundsFollowerOptions {
   hiddenOpacity?: string;

@@ -1,4 +1,4 @@
-import { batch, createEffect, createMemo, createSignal, onCleanup, type Accessor } from "solid-js";
+import { batch, createEffect, createMemo, createSignal, onCleanup, type Accessor } from "../reactivity.svelte";
 import type { DropdownAnchor } from "../types.js";
 import {
   DROPDOWN_ANCHOR_GAP_PX,
@@ -115,7 +115,8 @@ export const createAnchoredDropdown = (
     });
   });
 
-  const displayPosition = createMemo((previousPosition: { left: number; top: number }) => {
+  let previousPosition = DROPDOWN_OFFSCREEN_POSITION;
+  const displayPosition = createMemo(() => {
     viewportVersion();
     // Scope-aware: inside a scoped instance (demo showcases) the container's
     // box is the viewport, so the dropdown stays within the showcase card
@@ -134,10 +135,11 @@ export const createAnchoredDropdown = (
       offscreenPosition: DROPDOWN_OFFSCREEN_POSITION,
     });
     if (position.left !== DROPDOWN_OFFSCREEN_POSITION.left) {
+      previousPosition = position;
       return position;
     }
     return previousPosition;
-  }, DROPDOWN_OFFSCREEN_POSITION);
+  });
 
   return {
     shouldMount,

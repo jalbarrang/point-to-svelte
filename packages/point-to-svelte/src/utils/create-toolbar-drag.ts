@@ -1,4 +1,4 @@
-import { createSignal, onCleanup, type Accessor } from "solid-js";
+import { createSignal, onCleanup, type Accessor } from "../reactivity.svelte";
 import type { Position } from "../types.js";
 import type { SnapEdge } from "../components/toolbar/state.js";
 import { TOOLBAR_DRAG_THRESHOLD_PX, TOOLBAR_SNAP_ANIMATION_DURATION_MS } from "../constants.js";

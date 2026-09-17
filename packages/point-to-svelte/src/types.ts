@@ -1,4 +1,5 @@
-import type { JSX } from "solid-js";
+import type { Snippet } from "svelte";
+import type { Accessor } from "./reactivity.svelte";
 
 export interface Position {
   x: number;
@@ -428,66 +429,68 @@ export interface SelectionLabelInstanceAccessor {
 }
 
 export interface SvelteGrabRendererProps {
-  selectionVisible?: boolean;
-  selectionBounds?: OverlayBounds;
-  selectionBoundsMultiple?: OverlayBounds[];
-  selectionShouldSnap?: boolean;
-  selectionElementsCount?: number;
-  frozenLabelEntryAccessors?: FrozenLabelEntryAccessor[];
-  pendingShiftPreviewEntry?: FrozenLabelEntry;
-  selectionFilePath?: string;
-  selectionTagName?: string;
-  selectionComponentName?: string;
-  selectionLabelVisible?: boolean;
+  selectionVisible?: Accessor<boolean | undefined>;
+  selectionBounds?: Accessor<OverlayBounds | undefined>;
+  selectionBoundsMultiple?: Accessor<OverlayBounds[] | undefined>;
+  selectionShouldSnap?: Accessor<boolean | undefined>;
+  selectionElementsCount?: Accessor<number | undefined>;
+  frozenLabelEntryAccessors?: Accessor<FrozenLabelEntryAccessor[]>;
+  pendingShiftPreviewEntry?: Accessor<FrozenLabelEntry | null>;
+  selectionFilePath?: Accessor<string | undefined>;
+  selectionTagName?: Accessor<string | undefined>;
+  selectionComponentName?: Accessor<string | undefined>;
+  selectionLabelVisible?: Accessor<boolean | undefined>;
   selectionLabelStatus?: SelectionLabelStatus;
-  hierarchyState?: HierarchyState;
-  hierarchyMenuPosition?: DropdownAnchor | null;
-  labelInstances?: SelectionLabelInstance[];
-  labelInstanceAccessors?: SelectionLabelInstanceAccessor[];
-  dragVisible?: boolean;
-  dragBounds?: OverlayBounds;
-  grabbedBoxes?: Array<{
-    id: string;
-    bounds: OverlayBounds;
-    createdAt: number;
-  }>;
-  mouseX?: number;
-  isFrozen?: boolean;
-  inputValue?: string;
-  isPromptMode?: boolean;
+  hierarchyState?: Accessor<HierarchyState>;
+  hierarchyMenuPosition?: Accessor<DropdownAnchor | null>;
+  labelInstances?: Accessor<SelectionLabelInstance[]>;
+  labelInstanceAccessors?: Accessor<SelectionLabelInstanceAccessor[]>;
+  dragVisible?: Accessor<boolean | undefined>;
+  dragBounds?: Accessor<OverlayBounds | undefined>;
+  grabbedBoxes?: Accessor<
+    Array<{
+      id: string;
+      bounds: OverlayBounds;
+      createdAt: number;
+    }>
+  >;
+  mouseX?: Accessor<number | undefined>;
+  isFrozen?: Accessor<boolean | undefined>;
+  inputValue?: Accessor<string>;
+  isPromptMode?: Accessor<boolean | undefined>;
   onShowContextMenuInstance?: (instanceId: string) => void;
   onRetryInstance?: (instanceId: string) => void;
   onAcknowledgeErrorInstance?: (instanceId: string) => void;
   onLabelInstanceHoverChange?: (instanceId: string, isHovered: boolean) => void;
   onInputChange?: (value: string) => void;
   onInputSubmit?: () => void;
-  selectionLabelShakeCount?: number;
+  selectionLabelShakeCount?: Accessor<number | undefined>;
   onConfirmDismiss?: () => void;
   onOpenSelectionFile?: () => void;
-  discardPrompt?: SelectionDiscardPrompt;
-  toolbarVisible?: boolean;
-  isActive?: boolean;
+  discardPrompt?: Accessor<SelectionDiscardPrompt | undefined>;
+  toolbarVisible?: Accessor<boolean | undefined>;
+  isActive?: Accessor<boolean | undefined>;
   onToggleActive?: () => void;
-  activeActionId?: string | null;
-  enabled?: boolean;
-  shakeCount?: number;
+  activeActionId?: Accessor<string | null>;
+  enabled?: Accessor<boolean | undefined>;
+  shakeCount?: Accessor<number | undefined>;
   onToolbarStateChange?: (state: ToolbarState) => void;
   onSubscribeToToolbarStateChanges?: (callback: (state: ToolbarState) => void) => () => void;
   onToolbarSelectHoverChange?: (isHovered: boolean) => void;
   onToolbarRef?: (element: HTMLDivElement) => void;
-  contextMenuPosition?: Position | null;
-  contextMenuBounds?: OverlayBounds | null;
-  contextMenuTagName?: string;
-  contextMenuComponentName?: string;
-  contextMenuHasFilePath?: boolean;
-  actions?: ContextMenuAction[];
-  actionContext?: ActionContext;
+  contextMenuPosition?: Accessor<Position | null>;
+  contextMenuBounds?: Accessor<OverlayBounds | null>;
+  contextMenuTagName?: Accessor<string | undefined>;
+  contextMenuComponentName?: Accessor<string | undefined>;
+  contextMenuHasFilePath?: Accessor<boolean | undefined>;
+  actions?: Accessor<ContextMenuAction[]>;
+  actionContext?: Accessor<ContextMenuActionContext | undefined>;
   onContextMenuDismiss?: () => void;
   onContextMenuHide?: () => void;
-  toolbarMenuPosition?: DropdownAnchor | null;
-  toolbarMenuActions?: ContextMenuAction[];
-  defaultActionId?: string;
-  defaultActionLabel?: string;
+  toolbarMenuPosition?: Accessor<DropdownAnchor | null>;
+  toolbarMenuActions?: Accessor<ContextMenuAction[]>;
+  defaultActionId?: Accessor<string>;
+  defaultActionLabel?: Accessor<string>;
   onSetDefaultAction?: (actionId: string) => void;
   onToggleToolbarMenu?: () => void;
   onToolbarMenuDismiss?: () => void;
@@ -533,7 +536,7 @@ export interface TagBadgeProps {
 }
 
 export interface BottomSectionProps {
-  children: JSX.Element;
+  children: Snippet;
 }
 
 export interface DiscardPromptProps {

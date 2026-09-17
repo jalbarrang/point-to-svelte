@@ -14,11 +14,14 @@
 
 ## Svelte Rules
 
-- MUST: Treat the library as framework-agnostic DOM code. Only the source-resolution layer may know about Svelte.
+- MUST: Write the overlay UI as native Svelte. Components live in `.svelte` files and use `$props`, `$state`, `$derived`, `$effect` and snippets directly.
+- MUST: Reach Svelte's reactive primitives from imperative modules through `src/reactivity.svelte.ts`. The adapter implements the signal/memo/effect/store API on top of runes so the selection engine can stay framework-agnostic without importing `svelte` in every file.
+- MUST: Keep hit testing, bounds, selectors and previews free of Svelte. Only the overlay render layer and the source-resolution layer may know about Svelte.
 - MUST: Read Svelte dev metadata (`__svelte_meta`) defensively. It is absent in production builds, absent on `{@html}` content, and only present from Svelte 5.35 for the ancestor `parent` chain. Every read must degrade to selector + HTML preview instead of throwing.
 - MUST: Reach the DOM through `getComposedParentElement` (shadow roots, same-origin iframes) rather than `parentElement` directly.
 - MUST: Keep hit testing, bounds, selectors and previews going through `getElementAdapter` so non-DOM renderers can opt in.
-- NEVER: Import `svelte` or `svelte/internal/*` at runtime. The overlay must work in any app, and bundling a second Svelte runtime would be wrong.
+- MUST: Keep `svelte` external in the module build so the host app's runtime is reused; the global IIFE build bundles a private copy because it is a standalone `<script>` drop-in.
+- NEVER: Import `svelte/internal/*` outside compiled components. The public seams are `mount`/`unmount`, the lifecycle/context helpers, and the `reactivity.svelte.ts` adapter.
 - NEVER: Append overlay nodes inside the element SvelteKit hydrates. The host goes on `<body>`.
 
 ## About `__svelte_meta`
@@ -55,6 +58,7 @@ Build before testing, and always run the checks:
 ```bash
 pnpm build
 pnpm typecheck
+pnpm --filter point-to-svelte check
 pnpm --filter point-to-svelte-playground typecheck
 ```
 

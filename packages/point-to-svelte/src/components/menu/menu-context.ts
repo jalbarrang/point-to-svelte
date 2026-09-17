@@ -1,4 +1,5 @@
-import { createContext, useContext, type Accessor } from "solid-js";
+import { getContext, setContext } from "svelte";
+import type { Accessor } from "../../reactivity.svelte";
 
 export interface MenuItemRegistration {
   value: string;
@@ -29,14 +30,16 @@ export interface MenuStore {
   setHighlightRail: (element: HTMLElement) => void;
 }
 
-const MenuContext = createContext<MenuStore>();
+const MENU_STORE_CONTEXT = Symbol("point-to-svelte-menu-store");
+
+export const setMenuStore = (store: MenuStore): void => {
+  setContext(MENU_STORE_CONTEXT, store);
+};
 
 export const useMenuStore = (): MenuStore => {
-  const store = useContext(MenuContext);
+  const store = getContext<MenuStore | undefined>(MENU_STORE_CONTEXT);
   if (!store) {
     throw new Error("Menu subcomponents must be rendered inside <Menu.Provider>");
   }
   return store;
 };
-
-export { MenuContext };

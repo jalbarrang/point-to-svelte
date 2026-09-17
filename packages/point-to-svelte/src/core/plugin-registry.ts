@@ -1,5 +1,4 @@
-import { getOwner, onCleanup } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createStore, onCleanup } from "../reactivity.svelte";
 import type {
   Position,
   Plugin,
@@ -406,9 +405,7 @@ const createPluginRegistry = (initialOptions: SettableOptions = {}) => {
       callHookReduceSync("transformOpenFileUrl", url, filePath, lineNumber),
   };
 
-  if (getOwner()) {
-    onCleanup(dispose);
-  }
+  onCleanup(dispose);
 
   return {
     register,

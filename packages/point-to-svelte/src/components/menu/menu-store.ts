@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, on, type Accessor } from "solid-js";
+import { createEffect, createMemo, createSignal, on, type Accessor } from "../../reactivity.svelte";
 import { createMenuHighlight } from "../../utils/create-menu-highlight.js";
 import type { MenuItemRegistration, MenuStore } from "./menu-context.js";
 
