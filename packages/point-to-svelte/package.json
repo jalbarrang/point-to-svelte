@@ -1,6 +1,6 @@
 {
   "name": "point-to-svelte",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Select any Svelte component in the browser and copy its source context for coding agents",
   "keywords": [
     "agent",
