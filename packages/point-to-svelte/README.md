@@ -32,7 +32,9 @@ Entry points:
   (`getElementContext`, `getElementAtPoint`, `freeze`, `openFile`, …).
 - `point-to-svelte/core` — the core module for advanced integrations.
 - `point-to-svelte/vite` — the Vite/SvelteKit plugin.
-- `point-to-svelte/styles.css` — the compiled overlay stylesheet.
+- `point-to-svelte/styles.css` — the compiled overlay stylesheet. The client already carries it
+  and injects it into the overlay's shadow root, so it does not need importing; loading it into
+  the host page would pull a second Tailwind preflight and theme into the app's own cascade.
 
 Requires Svelte 5.35+ and a development build (`vite dev` sets the compiler's `dev` flag, which is
 what attaches the `__svelte_meta` source locations).

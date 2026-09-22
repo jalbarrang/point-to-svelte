@@ -2,6 +2,9 @@ import launchEditor from "launch-editor";
 import type { Plugin } from "vite";
 
 const CLIENT_MODULE_ID = "point-to-svelte";
+const CLIENT_VIRTUAL_MODULE_ID = "virtual:point-to-svelte/client";
+const RESOLVED_CLIENT_VIRTUAL_MODULE_ID = `\0${CLIENT_VIRTUAL_MODULE_ID}`;
+const CLIENT_VIRTUAL_MODULE_URL = `/@id/__x00__${CLIENT_VIRTUAL_MODULE_ID}`;
 const OPEN_IN_EDITOR_ENDPOINT = "/__open-in-editor";
 // launch-editor reports a missing editor through an async callback, so the
 // response is held briefly: a success answers 200 (the client stops there), and
@@ -89,13 +92,25 @@ export const svelteGrab = (options: SvelteGrabPluginOptions = {}): Plugin => {
   return {
     name: "point-to-svelte",
     apply: "serve",
+    resolveId(id) {
+      if (id === CLIENT_VIRTUAL_MODULE_ID) return RESOLVED_CLIENT_VIRTUAL_MODULE_ID;
+      return undefined;
+    },
+    load(id) {
+      if (id === RESOLVED_CLIENT_VIRTUAL_MODULE_ID) return `import "${CLIENT_MODULE_ID}";`;
+      return undefined;
+    },
+    // The client is injected as a script `src` rather than inline `children`:
+    // Vite does not run inline scripts through import analysis in dev, so an
+    // inline `import "point-to-svelte"` reaches the browser as a bare specifier
+    // and fails with "Relative references must start with either /, ./, or ../".
+    // A src pointing at this plugin's virtual module is transformed normally.
     transformIndexHtml() {
       if (!shouldInjectClient) return;
       return [
         {
           tag: "script",
-          attrs: { type: "module" },
-          children: `import "${CLIENT_MODULE_ID}";`,
+          attrs: { type: "module", src: CLIENT_VIRTUAL_MODULE_URL },
           injectTo: "head",
         },
       ];
